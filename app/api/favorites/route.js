@@ -1,11 +1,18 @@
+import { getAllFavorites, addFavorite } from "@/lib/services/favoriteService";
+
+export async function GET() {
+  const favorites = getAllFavorites();
+  return Response.json(favorites);
+}
+
 export async function POST(request) {
   let body;
 
   try {
     body = await request.json();
-  } catch (error) {
+  } catch {
     return Response.json(
-      { error: "Format JSON tidak valid" },
+      { error: "Body request tidak valid (bukan JSON)" },
       { status: 400 }
     );
   }
@@ -17,4 +24,4 @@ export async function POST(request) {
   }
 
   return Response.json(result.data, { status: result.status });
-}console.log("Hello, World!");
+}
