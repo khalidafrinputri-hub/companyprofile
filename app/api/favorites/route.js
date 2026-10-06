@@ -1,22 +1,11 @@
 import { getAllFavorites, addFavorite } from "@/lib/services/favoriteService";
 
 export async function GET() {
-  const favorites = await getAllFavorites();
-  return Response.json(favorites);
+  return Response.json(await getAllFavorites());
 }
 
 export async function POST(request) {
-  let body;
-
-  try {
-    body = await request.json();
-  } catch {
-    return Response.json(
-      { error: "Body request tidak valid (bukan JSON)" },
-      { status: 400 }
-    );
-  }
-
+  const body = await request.json();
   const result = await addFavorite(body);
 
   if (!result.success) {
