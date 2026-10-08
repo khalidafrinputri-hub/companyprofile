@@ -10,10 +10,12 @@ import { useFavorite } from "@/context/FavoriteContext";
 
 const links = [
   { href: "/", label: "Home" },
+  { href: "/users", label: "Users" },
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
   { href: "/profile", label: "Profile" },
   { href: "/contact", label: "Contact" },
+  { href: "/messages", label: "Messages" },
 ];
 
 export default function Navbar() {
@@ -21,24 +23,29 @@ export default function Navbar() {
   const { isLoggedIn } = useAuth();
   const { favorites } = useFavorite();
 
-  // Menu Favorite baru muncul jika ada user yang difavoritkan
-  const navLinks =
-    favorites && favorites.length > 0
-      ? [...links, { href: "/favorites", label: `Favorite (${favorites.length})` }]
-      : links;
+  const favoriteCount = favorites?.length ?? 0;
+
+  // Menu Favorite selalu tampil, jumlahnya hanya muncul kalau ada isinya
+  const navLinks = [
+    ...links,
+    {
+      href: "/favorites",
+      label: favoriteCount > 0 ? `Favorite (${favoriteCount})` : "Favorite",
+    },
+  ];
 
   return (
-    <header className="sticky top-4 z-50 mx-auto w-full max-w-4xl px-4">
+    <header className="sticky top-4 z-50 mx-auto w-full max-w-5xl px-4">
       <nav className="flex items-center justify-between gap-4 rounded-full border border-white/10 bg-background/70 px-4 py-2 shadow-lg shadow-black/20 backdrop-blur-xl">
         {/* Brand Logo */}
         <Link
           href="/"
-          className="shrink-0 text-sm font-bold tracking-tight text-foreground hover:opacity-80 transition-opacity"
+          className="shrink-0 text-sm font-bold tracking-tight text-foreground transition-opacity hover:opacity-80"
         >
           MyWebsite
         </Link>
 
-        {/* Links Navigasi Utama (Hanya Tampil di Tablet/Desktop) */}
+        {/* Links Navigasi Utama (tampil di tablet/desktop) */}
         <div className="hidden items-center gap-1 text-sm text-muted-foreground sm:flex">
           {navLinks.map((link) => {
             const isActive =
@@ -52,7 +59,7 @@ export default function Navbar() {
                 href={link.href}
                 className={cn(
                   "rounded-full px-3 py-1.5 transition-colors hover:text-foreground",
-                  isActive && "bg-foreground/10 text-foreground font-medium"
+                  isActive && "bg-foreground/10 font-medium text-foreground"
                 )}
               >
                 {link.label}
@@ -61,7 +68,7 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Tombol Login / Logout (Dipisah dari 'hidden' Agar Selalu Tampil di Semua Ukuran Layar) */}
+        {/* Tombol Login / Logout (di luar 'hidden' supaya selalu tampil) */}
         <div className="flex items-center gap-2">
           {isLoggedIn ? (
             <form action="/auth/signout" method="post">
@@ -69,7 +76,7 @@ export default function Navbar() {
                 type="submit"
                 className={cn(
                   buttonVariants({ size: "sm", variant: "outline" }),
-                  "rounded-full cursor-pointer"
+                  "cursor-pointer rounded-full"
                 )}
               >
                 Logout
