@@ -8,9 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 import { AuthProvider } from "@/context/AuthContext";
-import { createClient } from "@/lib/supabase/server";
-
-
+import { createClient } from "@/lib/supabase/server"; //[cite: 21]
 
 const fontSans = localFont({
   src: [
@@ -33,15 +31,12 @@ export const metadata = {
     "We help individuals and businesses build modern, simple, and useful digital experiences.",
 };
 
-export default function RootLayout({ children }) {
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-
-
-
-
+// Tambahkan kata kunci 'async' di bawah ini
+export default async function RootLayout({ children }) {
+  const supabase = await createClient(); //[cite: 21]
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <html lang="en" className={`${fontSans.variable}`}>
