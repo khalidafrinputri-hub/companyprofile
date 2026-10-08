@@ -7,6 +7,11 @@ import { FavoriteProvider } from "@/context/FavoriteContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+import { AuthProvider } from "@/context/AuthContext";
+import { createClient } from "@/lib/supabase/server";
+
+
+
 const fontSans = localFont({
   src: [
     {
@@ -29,19 +34,29 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+
+
+
+
+
   return (
     <html lang="en" className={`${fontSans.variable}`}>
       <body className="flex min-h-screen flex-col bg-background text-foreground antialiased">
-        {/* Bungkus dengan kedua Provider sekaligus */}
-        <UserProvider>
-          <FavoriteProvider>
-            <Navbar />
+        <AuthProvider user={user ? { id: user.id, email: user.email } : null}>
+          <UserProvider>
+            <FavoriteProvider>
+              <Navbar />
 
-            <main className="flex-1">{children}</main>
+              <main className="flex-1">{children}</main>
 
-            <Footer />
-          </FavoriteProvider>
-        </UserProvider>
+              <Footer />
+            </FavoriteProvider>
+          </UserProvider>
+        </AuthProvider>
       </body>
     </html>
   );

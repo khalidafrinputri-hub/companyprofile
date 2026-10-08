@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useUser } from "@/context/UserContext";
-import { useFavorite } from "@/context/FavoriteContext";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext"; // ← baru
+import { useFavorite } from "@/context/FavoriteContext";
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/users", label: "Users" }, // Menu Halaman Users
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
   { href: "/profile", label: "Profile" },
@@ -19,16 +18,18 @@ const links = [
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { name, submitted } = useUser();
+  const { isLoggedIn } = useAuth(); // ← baru
   const { favorites } = useFavorite();
 
-  const favoriteCount = favorites?.length || 0;
-  const isFavoritePage = pathname === "/favorites";
+  // Menu Favorite baru muncul setelah ada user yang difavoritkan
+  const navLinks =
+    favorites.length > 0
+      ? [...links, { href: "/favorites", label: `Favorite (${favorites.length})` }]
+      : links;
 
   return (
-    <header className="sticky top-4 z-50 mx-auto w-full max-w-5xl px-4">
+    <header className="sticky top-4 z-50 mx-auto w-full max-w-4xl px-4">
       <nav className="flex items-center justify-between gap-4 rounded-full border border-white/10 bg-background/70 px-4 py-2 shadow-lg shadow-black/20 backdrop-blur-xl">
-        {/* Brand Logo */}
         <Link
           href="/"
           className="shrink-0 text-sm font-bold tracking-tight"
@@ -36,9 +37,8 @@ export default function Navbar() {
           MyWebsite
         </Link>
 
-        {/* Menu Navigasi Utama */}
-        <div className="hidden items-center gap-1 text-sm text-muted-foreground md:flex">
-          {links.map((link) => {
+        <div className="hidden items-center gap-1 text-sm text-muted-foreground sm:flex">
+          {navLinks.map((link) => {
             const isActive =
               link.href === "/"
                 ? pathname === "/"
@@ -57,37 +57,29 @@ export default function Navbar() {
               </Link>
             );
           })}
-
-          {/* Menu Favorite dengan Counter */}
-          <Link
-            href="/favorites"
-            className={cn(
-              "flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-colors hover:text-foreground",
-              isFavoritePage && "bg-foreground/10 text-foreground"
-            )}
-          >
-            <span>Favorite</span>
-            <span className="rounded-full bg-foreground/10 px-2 py-0.5 text-xs font-semibold text-foreground">
-              {favoriteCount}
-            </span>
-          </Link>
         </div>
 
-        {/* Bagian Kanan: User Greeting & CTA */}
-        <div className="flex items-center gap-3">
-          {submitted && name && (
-            <span className="hidden text-xs text-muted-foreground sm:inline-block">
-              Hi, {name} 👋
-            </span>
-          )}
-
+        {/* ← tombol "Get in touch" diganti dengan Login / Logout */}
+        {isLoggedIn ? (
+          <form action="/auth/signout" method="post">
+            <button
+              type="submit"
+              className={cn(
+                buttonVariants({ size: "sm", variant: "outline" }),
+                "rounded-full"
+              )}
+            >
+              Logout
+            </button>
+          </form>
+        ) : (
           <Link
-            href="/contact"
+            href="/login"
             className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
           >
-            Get in touch
+            Login
           </Link>
-        </div>
+        )}
       </nav>
     </header>
   );
