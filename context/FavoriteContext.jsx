@@ -35,6 +35,10 @@ export function FavoriteProvider({ children }) {
     if (res.ok) {
       const saved = await res.json();
       setFavorites((prev) => [...prev, saved]);
+    } else {
+      const err = await res.json().catch(() => ({}));
+      console.error("Gagal add favorite:", res.status, err);
+      alert(`Gagal menambahkan favorite: ${err.error ?? res.status}`);
     }
   }
 
