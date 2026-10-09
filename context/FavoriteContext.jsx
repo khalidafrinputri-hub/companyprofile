@@ -20,6 +20,10 @@ export function FavoriteProvider({ children }) {
       .then(setFavorites);
   }, [isLoggedIn]);
 
+  function isFavorite(userId) {
+    return favorites.some((f) => f.user_id === userId);
+  }
+
   async function addFavorite(user) {
     if (!isLoggedIn) {
       alert("Silakan login terlebih dahulu untuk menambahkan favorite.");
@@ -47,14 +51,28 @@ export function FavoriteProvider({ children }) {
 
     if (res.ok) {
       setFavorites((prev) => prev.filter((f) => f.user_id !== userId));
+    } else {
+      const err = await res.json().catch(() => ({}));
+      console.error("Gagal hapus favorite:", res.status, err);
+      alert(`Gagal menghapus favorite: ${err.error ?? res.status}`);
     }
   }
 
-  function isFavorite(userId) {
-    return favorites.some((f) => f.user_id === userId);
+  async function toggleFavorite(user) {
+    if (isFavorite(user.id)) {
+      await removeFavorite(user.id);
+    } else {
+      await addFavorite(user);
+    }
   }
 
-  const value = { favorites, addFavorite, removeFavorite, isFavorite };
+  const value = {
+    favorites,
+    addFavorite,
+    removeFavorite,
+    isFavorite,
+    toggleFavorite,
+  };
 
   return (
     <FavoriteContext.Provider value={value}>
