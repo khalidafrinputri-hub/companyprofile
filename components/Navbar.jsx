@@ -8,14 +8,13 @@ import { buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { useFavorite } from "@/context/FavoriteContext";
 
-const links = [
+// Menu yang selalu tampil
+const publicLinks = [
   { href: "/", label: "Home" },
-  { href: "/users", label: "Users" },
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
   { href: "/profile", label: "Profile" },
   { href: "/contact", label: "Contact" },
-  { href: "/messages", label: "Messages" },
 ];
 
 export default function Navbar() {
@@ -25,14 +24,25 @@ export default function Navbar() {
 
   const favoriteCount = favorites?.length ?? 0;
 
-  // Menu Favorite selalu tampil, jumlahnya hanya muncul kalau ada isinya
-  const navLinks = [
-    ...links,
+  // Menu yang hanya tampil setelah login
+  const memberLinks = [
+    { href: "/users", label: "Users" },
+    { href: "/messages", label: "Messages" },
     {
       href: "/favorites",
       label: favoriteCount > 0 ? `Favorite (${favoriteCount})` : "Favorite",
     },
   ];
+
+  const navLinks = isLoggedIn
+    ? [
+        publicLinks[0], // Home
+        memberLinks[0], // Users
+        ...publicLinks.slice(1), // About, Services, Profile, Contact
+        memberLinks[1], // Messages
+        memberLinks[2], // Favorite
+      ]
+    : publicLinks;
 
   return (
     <header className="sticky top-4 z-50 mx-auto w-full max-w-5xl px-4">
@@ -68,20 +78,28 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Tombol Login / Logout (di luar 'hidden' supaya selalu tampil) */}
+        {/* Bagian kanan: Login, atau Get in touch + Logout */}
         <div className="flex items-center gap-2">
           {isLoggedIn ? (
-            <form action="/auth/signout" method="post">
-              <button
-                type="submit"
-                className={cn(
-                  buttonVariants({ size: "sm", variant: "outline" }),
-                  "cursor-pointer rounded-full"
-                )}
+            <>
+              <Link
+                href="/contact"
+                className={cn(buttonVariants({ size: "sm" }), "rounded-full")}
               >
-                Logout
-              </button>
-            </form>
+                Get in touch
+              </Link>
+              <form action="/auth/signout" method="post">
+                <button
+                  type="submit"
+                  className={cn(
+                    buttonVariants({ size: "sm", variant: "outline" }),
+                    "cursor-pointer rounded-full"
+                  )}
+                >
+                  Logout
+                </button>
+              </form>
+            </>
           ) : (
             <Link
               href="/login"
